@@ -24,10 +24,6 @@ USEMODULE += gnrc_icmpv6_echo
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
-USEMODULE += posix_sockets
-
-USEMODULE += gnrc_conn_udp
-USEPKG += microcoap
 
 DISABLE_MODULE += gnrc_sixlowpan_iphc_nhc
 
