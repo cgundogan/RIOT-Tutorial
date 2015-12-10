@@ -16,11 +16,58 @@
 #include "msg.h"
 #include <stdbool.h>
 #include <string.h>
+#include <coap.h>
 #include "board.h"
+#include "thread.h"
+#include "coap_common.h"
 
+#define PRIO    (THREAD_PRIORITY_MAIN - 1)
 #define Q_SZ    (8)
 static msg_t msg_q[Q_SZ];
 static bool led_status = false;
+static char stack[THREAD_STACKSIZE_MAIN];
+
+uint8_t response[MAX_RESPONSE_LEN] = { 0 };
+
+static int handle_get_riot_board(coap_rw_buffer_t *scratch, const coap_packet_t *inpkt,
+                                 coap_packet_t *outpkt, uint8_t id_hi, uint8_t id_lo)
+{
+    const char *riot_name = RIOT_BOARD;
+    int len = strlen(RIOT_BOARD);
+
+    memcpy(response, riot_name, len);
+
+    return coap_make_response(scratch, outpkt, (const uint8_t *)response, len, id_hi, id_lo,
+                              &inpkt->tok, COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
+}
+
+/* add a new callback function here ######################################### */
+
+/* ########################################################################## */
+
+static const coap_endpoint_path_t path_well_known_core =
+        { 2, { ".well-known", "core" } };
+
+static const coap_endpoint_path_t path_riot_board =
+        { 2, { "riot", "board" } };
+
+/* add a new end-point path here ############################################ */
+
+/* ########################################################################## */
+
+
+const coap_endpoint_t endpoints[] =
+{
+    { COAP_METHOD_GET,	handle_get_well_known_core, &path_well_known_core, "ct=40" },
+    { COAP_METHOD_GET,	handle_get_riot_board, &path_riot_board, "ct=0" },
+
+/* add a new end-point here ################################################# */
+
+/* ########################################################################## */
+
+    /* marks the end of the endpoints array: */
+    { (coap_method_t)0, NULL, NULL, NULL }
+};
 
 /* Add the shell command function here ###################################### */
 
@@ -64,6 +111,9 @@ int main(void)
     puts("Type 'help' for a list of available commands");
 
     LED_OFF;
+
+    thread_create(stack, sizeof(stack), PRIO, THREAD_CREATE_STACKTEST, microcoap_server,
+                  NULL, "coap");
 
     char line_buf[SHELL_DEFAULT_BUFSIZE];
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);

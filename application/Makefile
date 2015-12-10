@@ -27,6 +27,9 @@ USEMODULE += ps
 
 DISABLE_MODULE += gnrc_sixlowpan_iphc_nhc
 
+USEMODULE += gnrc_conn_udp
+USEPKG += microcoap
+
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the
 # development process:
