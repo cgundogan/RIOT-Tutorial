@@ -43,6 +43,26 @@ static int handle_get_riot_board(coap_rw_buffer_t *scratch, const coap_packet_t 
 
 /* add a new callback function here ######################################### */
 
+static int handle_get_led_status(coap_rw_buffer_t *scratch, const coap_packet_t *inpkt,
+                                 coap_packet_t *outpkt, uint8_t id_hi, uint8_t id_lo)
+{
+    char *led_msg = NULL;;
+    int len = 0;
+
+    if (led_status) {
+        led_msg = "LED is ON";
+    }
+    else {
+        led_msg = "LED is OFF";
+    }
+
+    len = strlen(led_msg);
+    memcpy(response, led_msg, len);
+
+    return coap_make_response(scratch, outpkt, (const uint8_t *)response, len, id_hi, id_lo,
+                              &inpkt->tok, COAP_RSPCODE_CONTENT, COAP_CONTENTTYPE_TEXT_PLAIN);
+}
+
 /* ########################################################################## */
 
 static const coap_endpoint_path_t path_well_known_core =
@@ -53,6 +73,9 @@ static const coap_endpoint_path_t path_riot_board =
 
 /* add a new end-point path here ############################################ */
 
+static const coap_endpoint_path_t path_led_status =
+        { 2, { "led", "status" } };
+
 /* ########################################################################## */
 
 
@@ -62,6 +85,8 @@ const coap_endpoint_t endpoints[] =
     { COAP_METHOD_GET,	handle_get_riot_board, &path_riot_board, "ct=0" },
 
 /* add a new end-point here ################################################# */
+
+    { COAP_METHOD_GET,	handle_get_led_status, &path_led_status, "ct=0" },
 
 /* ########################################################################## */
 
