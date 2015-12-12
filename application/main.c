@@ -20,12 +20,14 @@
 #include "board.h"
 #include "thread.h"
 #include "coap_common.h"
+#include "udp_common.h"
 
 #define PRIO    (THREAD_PRIORITY_MAIN - 1)
 #define Q_SZ    (8)
 static msg_t msg_q[Q_SZ];
 static bool led_status = false;
-static char stack[THREAD_STACKSIZE_MAIN];
+static char coap_stack[THREAD_STACKSIZE_MAIN];
+static char udp_stack[THREAD_STACKSIZE_DEFAULT];
 
 uint8_t response[MAX_RESPONSE_LEN] = { 0 };
 
@@ -124,6 +126,8 @@ static const shell_command_t shell_commands[] = {
 
     { "led", "use 'led on' to turn the LED on and 'led off' to turn the LED off", led_control },
 
+    { "udp", "send a message: udp <IPv6-address> <message>", udp_cmd },
+
 /* ########################################################################## */
 
     { NULL, NULL, NULL }
@@ -137,8 +141,10 @@ int main(void)
 
     LED_OFF;
 
-    thread_create(stack, sizeof(stack), PRIO, THREAD_CREATE_STACKTEST, microcoap_server,
+    thread_create(coap_stack, sizeof(coap_stack), PRIO, THREAD_CREATE_STACKTEST, microcoap_server,
                   NULL, "coap");
+    thread_create(udp_stack, sizeof(udp_stack), PRIO, THREAD_CREATE_STACKTEST, udp_server,
+                  NULL, "udp");
 
     char line_buf[SHELL_DEFAULT_BUFSIZE];
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
