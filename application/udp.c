@@ -20,6 +20,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "msg.h"
+#include "udp_common.h"
+#include "board.h"
 
 #define MUDP_Q_SZ           (8)
 #define SERVER_BUFFER_SIZE  (64)
@@ -67,6 +69,14 @@ static void *udp_server_loop(void)
         else {
             printf("Received data: ");
             puts(server_buffer);
+            if (strcmp(server_buffer, "on") == 0) {
+                led_status = true;
+                LED_ON;
+            }
+            else if (strcmp(server_buffer, "off") == 0) {
+                led_status = false;
+                LED_OFF;
+            }
         }
     }
     return NULL;

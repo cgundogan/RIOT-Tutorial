@@ -25,7 +25,7 @@
 #define PRIO    (THREAD_PRIORITY_MAIN - 1)
 #define Q_SZ    (8)
 static msg_t msg_q[Q_SZ];
-static bool led_status = false;
+bool led_status = false;
 static char coap_stack[THREAD_STACKSIZE_MAIN];
 static char udp_stack[THREAD_STACKSIZE_DEFAULT];
 
@@ -112,8 +112,6 @@ int led_control(int argc, char **argv)
             return 0;
         }
     }
-
-    printf("Usage: %s [on|off]\n", argv[0]);
 
     return -1;
 }

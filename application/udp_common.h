@@ -17,6 +17,7 @@
 extern "C" {
 #endif
 
+extern bool led_status;
 void *udp_server(void *);
 int udp_cmd(int argc, char **argv);
 
